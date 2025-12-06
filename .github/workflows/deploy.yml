@@ -5,7 +5,7 @@ on:
     branches:
         - main
     paths:
-        - 'workflow.json' # Solo se ejecuta si el flujo cambia
+        - 'workflow2.json' # Solo se ejecuta si el flujo cambia
 
 jobs:
     deploy:
@@ -27,4 +27,4 @@ jobs:
             N8N_HOST: ${{ secrets.N8N_PROD_HOST }}
             N8N_API_KEY: ${{ secrets.N8N_PROD_API_KEY }}
         run: |
-            n8n import:workflow --file=workflow.json --id=1 # (Importante: usar el ID para actualizar, no crear uno nuevo)
+            n8n import:workflow --file=workflow2.json --id=1 # (Importante: usar el ID para actualizar, no crear uno nuevo)
