@@ -1,79 +1,30 @@
 name: Deploy n8n Workflow
 
 on:
-  push:
+    push:
     branches:
-      - main
+        - main
     paths:
-      - 's8_ex3.json'
-    workflow_dispatch:
+        - 'workflow.json' # Solo se ejecuta si el flujo cambia
 
 jobs:
-  deploy:
+    deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+        - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install jq for JSON processing
-        run: sudo apt-get update && sudo apt-get install -y jq
+        - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+            node-version: '18'
 
-      - name: Validate workflow.json
-        run: |
-          echo "Validating workflow file..."
-          if ! jq empty s8_ex3.json 2>/dev/null; then
-            echo "❌ Invalid JSON in workflow.json"
-            exit 1
-          fi
-          echo "✅ workflow.json is valid"
+        - name: Install n8n-cli
+        run: npm install n8n-cli -g
 
-      - name: Deploy workflow to n8n
+        - name: Deploy to Production
         env:
-          N8N_API_KEY: ${{ secrets.N8N_API_KEY }}
-          N8N_HOST: ${{ secrets.N8N_HOST }}
+            N8N_HOST: ${{ secrets.N8N_PROD_HOST }}
+            N8N_API_KEY: ${{ secrets.N8N_PROD_API_KEY }}
         run: |
-          echo "Deploying workflow to n8n..."
-          echo "Host: $N8N_HOST"
-          
-          WORKFLOW_ID=$(jq -r '.id // empty' s8_ex3.json)
-          WORKFLOW_NAME=$(jq -r '.name // "Unnamed Workflow"' s8_ex3.json)
-          
-          echo "Workflow: $WORKFLOW_NAME"
-          
-          if [ -z "$WORKFLOW_ID" ]; then
-            echo " Creating new workflow..."
-            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$N8N_HOST/api/v1/workflows" \
-              -H "X-N8N-API-KEY: $N8N_API_KEY" \
-              -H "Content-Type: application/json" \
-              -d @s8_ex3.json)
-            
-            HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-            BODY=$(echo "$RESPONSE" | sed '$d')
-            
-            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
-              echo " Workflow created successfully!"
-              echo "$BODY" | jq '.'
-            else
-              echo " Failed to create workflow (HTTP $HTTP_CODE)"
-              echo "$BODY"
-              exit 1
-            fi
-          else
-            echo "Updating existing workflow (ID: $WORKFLOW_ID)..."
-            RESPONSE=$(curl -s -w "\n%{http_code}" -X PUT "$N8N_HOST/api/v1/workflows/$WORKFLOW_ID" \
-              -H "X-N8N-API-KEY: $N8N_API_KEY" \
-              -H "Content-Type: application/json" \
-              -d @s8_ex3.json)
-            
-            HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-            BODY=$(echo "$RESPONSE" | sed '$d')
-            
-            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
-              echo "Workflow updated successfully!"
-              echo "$BODY" | jq '.'
-            else
-              echo "Failed to update workflow (HTTP $HTTP_CODE)"
-              echo "$BODY"
-              exit 1
-            fi
-          fi
+            n8n import:workflow --file=workflow.json --id=1 # (Importante: usar el ID para actualizar, no crear uno nuevo)
