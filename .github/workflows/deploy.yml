@@ -1,30 +1,30 @@
 name: Deploy n8n Workflow
 
 on:
-    push:
+  push:
     branches:
-        - main
+      - main
     paths:
-        - 'workflow2.json' # Solo se ejecuta si el flujo cambia
+      - 'workflow2.json' # Solo se ejecuta si el flujo cambia
 
 jobs:
-    deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-        - name: Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-            node-version: '18'
+          node-version: '18'
 
-        - name: Install n8n-cli
+      - name: Install n8n-cli
         run: npm install n8n-cli -g
 
-        - name: Deploy to Production
+      - name: Deploy to Production
         env:
-            N8N_HOST: ${{ secrets.N8N_PROD_HOST }}
-            N8N_API_KEY: ${{ secrets.N8N_PROD_API_KEY }}
+          N8N_HOST: ${{ secrets.N8N_PROD_HOST }}
+          N8N_API_KEY: ${{ secrets.N8N_PROD_API_KEY }}
         run: |
-            n8n import:workflow --file=workflow2.json --id=1 # (Importante: usar el ID para actualizar, no crear uno nuevo)
+          n8n import:workflow --file=workflow2.json --id=1
