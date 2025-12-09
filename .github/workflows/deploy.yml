@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'workflow.json'
+      - 'test.json'
 
 jobs:
   deploy:
@@ -23,5 +23,5 @@ jobs:
           curl -X POST "$N8N_HOST/api/v1/workflows" \
             -H "Content-Type: application/json" \
             -H "X-N8N-API-KEY: $N8N_API_KEY" \
-            --data-binary @workflow.json
+            --data-binary @test.json
 
