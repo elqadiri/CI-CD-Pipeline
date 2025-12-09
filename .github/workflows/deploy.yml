@@ -5,11 +5,12 @@ on:
     branches:
       - main
     paths:
-      - 'ex3_s8.json' # Solo se ejecuta si el flujo cambia
+      - 'ex3_s8.json'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -17,10 +18,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Install n8n-cli
-        run: npm install n8n-cli -g
+        run: npm install -g n8n-cli
 
       - name: Deploy to Production
         env:
