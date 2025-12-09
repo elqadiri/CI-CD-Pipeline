@@ -15,6 +15,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Debug host
+        env:
+          N8N_HOST: ${{ secrets.N8N_PROD_HOST }}
+        run: |
+          echo "N8N_HOST=[$N8N_HOST]"
+
       - name: Deploy to n8n
         env:
           N8N_HOST: ${{ secrets.N8N_PROD_HOST }}
